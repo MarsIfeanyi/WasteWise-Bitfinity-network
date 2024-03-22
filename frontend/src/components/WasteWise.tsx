@@ -196,7 +196,6 @@ export function WasteWise() {
         >
           {connectors.map((connector) => (
             <li key={connector.id}>
-              {console.log(connector)}
               <button
                 type={"button"}
                 disabled={!connector.ready}

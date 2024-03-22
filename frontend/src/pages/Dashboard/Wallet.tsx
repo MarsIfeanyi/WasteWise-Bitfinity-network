@@ -31,7 +31,7 @@ const Wallet = () => {
   } = useWasteWiseContext();
   const notificationCount = useNotificationCount();
 
-  const providers = new ethers.JsonRpcProvider(
+  const providers = new ethers.providers.JsonRpcProvider(
     `https://testnet.bitfinity.network`
   );
 

@@ -149,11 +149,8 @@ contract MarketPlace {
         if (rwasteWise.balanceOf(msg.sender) < totalPrice)
             revert NotEnoughToken();
 
-        // transfer tokens from buyer to seller
-        rwasteWise.transferFrom(msg.sender, address(this), totalPrice);
-
         // burn the tokens collected
-        rwasteWise.burnReceipt(address(this), totalPrice);
+        rwasteWise.burnReceipt(msg.sender, totalPrice);
 
         // Create a new transaction
         Transaction memory transaction;

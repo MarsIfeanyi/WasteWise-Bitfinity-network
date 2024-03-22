@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAccount, useContractEvent, useContractRead } from "wagmi";
 import { MARKETPLACE_ADDRESS, MarketPlaceABI } from "../../../constants";
 import { formatEther } from "viem";
+import { ethers } from "ethers";
 
 type Props = {};
 
@@ -11,20 +12,46 @@ const MyEvents = (props: Props) => {
   const [loading, setLoading] = useState(false);
   const { address } = useAccount();
 
-  const { isLoading } = useContractRead({
-    address: MARKETPLACE_ADDRESS,
-    abi: MarketPlaceABI,
-    functionName: "getEventsByUser",
-    args: [address],
-    onError(data: any) {
-      console.log(data);
-      setLoading(false);
-    },
-    onSuccess(data: any) {
-      setEvents(data);
-      setLoading(false);
-    },
-  });
+  const providers = new ethers.providers.JsonRpcProvider(
+    `https://testnet.bitfinity.network`
+  );
+
+  const contract = new ethers.Contract(
+    MARKETPLACE_ADDRESS,
+    MarketPlaceABI,
+    providers
+  );
+
+  const ert = async () => {
+    let items = [];
+    const events = await contract.getEventsByUser(address);
+    if (events) {
+      for (let i = 0; i < events.length; i++) {
+        items.push(events[i]);
+      }
+      console.log(items[0]);
+      setEvents(items);
+    }
+  };
+
+  useEffect(() => {
+    ert();
+  }, []);
+
+  // const { isLoading } = useContractRead({
+  //   address: MARKETPLACE_ADDRESS,
+  //   abi: MarketPlaceABI,
+  //   functionName: "getEventsByUser",
+  //   args: [address],
+  //   onError(data: any) {
+  //     console.log(data);
+  //     setLoading(false);
+  //   },
+  //   onSuccess(data: any) {
+  //     setEvents(data);
+  //     setLoading(false);
+  //   },
+  // });
 
   useContractEvent({
     address: MARKETPLACE_ADDRESS,
@@ -35,11 +62,11 @@ const MyEvents = (props: Props) => {
     },
   });
 
-  useEffect(() => {
-    if (isLoading) {
-      setLoading(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     setLoading(true);
+  //   }
+  // }, []);
 
   return (
     <div className="my-8 w-10/12">
@@ -65,12 +92,16 @@ const MyEvents = (props: Props) => {
             <tbody>
               {events.map((item, index) => (
                 <tr key={index}>
-                  <th>{formatDate(Number(item?.date))}</th>
-                  <td>{Number(item?.itemId)}</td>
-                  <td>{item?.itemName}</td>
-                  <td>{Number(formatEther(item?.itemPrice))}</td>
-                  <td>{Number(item?.qty)}</td>
-                  <td>{Number(formatEther(item?.amountOfTokensTransfered))}</td>
+                  <th>{item && formatDate(Number(item.date))}</th>
+                  <td>{item && Number(item.itemId)}</td>
+                  <td>{item && item.itemName}</td>
+                  <td>
+                    {item && `${Number(formatEther(item.itemPrice))} RWISE`}
+                  </td>
+                  <td>{item && Number(item.qty)}</td>
+                  <td>
+                    {item && Number(formatEther(item.amountOfTokensTransfered))}
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   useAccount,
+  useConnect,
   useContractEvent,
   useContractRead,
   useContractWrite,
@@ -19,6 +20,7 @@ import {
   WASTEWISE_TOKEN_ABI,
 } from "../../../constants";
 import { toast } from "sonner";
+import { ethers } from "ethers";
 
 const SingleEvent = () => {
   let { id } = useParams();
@@ -34,6 +36,7 @@ const SingleEvent = () => {
   const [allowanceAmount, setAllowanceAmount] = useState<number>(0);
   const allowanceAmountRef = useRef(0);
   const [allowanceListener, setallowanceListener] = useState(null);
+  const [provider, setProvider] = useState("");
 
   const navigate = useNavigate();
 
@@ -49,142 +52,220 @@ const SingleEvent = () => {
     }
   };
 
-  const { isLoading } = useContractRead({
-    address: MARKETPLACE_ADDRESS,
-    abi: MarketPlaceABI,
-    functionName: "getItemInfo",
-    args: [id],
-    onError(data: any) {
-      console.log(data);
-    },
-    onSuccess(data: any) {
-      setListing(data);
-      setLoading(false);
-      setPrice(Number(formatUnits(data.price, 18)));
-      settotal(amount * Number(formatUnits(data.price, 18)));
-    },
-  });
+  const providers = new ethers.providers.JsonRpcProvider(
+    `https://testnet.bitfinity.network`
+  );
 
-  const { data: allowanceData, isLoading: loading1 } = useContractRead({
-    address: WASTEWISE_TOKEN_ADDRESS,
-    abi: WASTEWISE_TOKEN_ABI,
-    functionName: "allowance",
-    args: [address, MARKETPLACE_ADDRESS],
-    onError(data: any) {
-      console.log(data);
-    },
-    onSuccess(data: any) {
-      setAllowance(data);
-    },
-  });
+  const wproviders = new ethers.providers.Web3Provider(window.ethereum);
 
-  useContractEvent({
-    address: WASTEWISE_TOKEN_ADDRESS,
-    abi: WASTEWISE_TOKEN_ABI,
-    eventName: "Approval",
-    listener(log: any) {
-      setallowanceListener(log);
-    },
-  });
+  const contract1 = new ethers.Contract(
+    MARKETPLACE_ADDRESS,
+    MarketPlaceABI,
+    providers
+  );
+  const contract2 = new ethers.Contract(
+    WASTEWISE_TOKEN_ADDRESS,
+    WASTEWISE_TOKEN_ABI,
+    providers
+  );
+
+  const ert = async () => {
+    const item = await contract1.getItemInfo(id);
+    console.log(item);
+    setListing(item);
+    setPrice(Number(formatUnits(item ? item[3] : 0, 18)));
+    settotal(amount * Number(formatUnits(item ? item[3] : 0, 18)));
+  };
+
+  const pst = async () => {
+    const allowanceData = await contract2.allowance(
+      address,
+      MARKETPLACE_ADDRESS
+    );
+    setAllowance(allowanceData);
+    console.log(allowanceData);
+  };
+
+  const wst = async () => {
+    let signer = await wproviders.getSigner();
+    const contract3 = new ethers.Contract(
+      WASTEWISE_TOKEN_ADDRESS,
+      WASTEWISE_TOKEN_ABI,
+      signer
+    );
+    const allowanceData = await contract3.approve(
+      MARKETPLACE_ADDRESS,
+      parseEther(`${total}`)
+    );
+    setAllowance(allowanceData);
+  };
+
+  const yst = async () => {
+    let signer = wproviders.getSigner();
+    const contract3 = new ethers.Contract(
+      WASTEWISE_TOKEN_ADDRESS,
+      WASTEWISE_TOKEN_ABI,
+      signer
+    );
+    await contract3.transferFrom(
+      address,
+      MARKETPLACE_ADDRESS,
+      parseEther(`${total}`)
+    );
+  };
+
+  const zst = async () => {
+    let signer = wproviders.getSigner();
+    const contract4 = new ethers.Contract(
+      MARKETPLACE_ADDRESS,
+      MarketPlaceABI,
+      signer
+    );
+    console.log(listing[6], amount);
+    await contract4.buyListing(listing[6], amount);
+  };
+
+  useEffect(() => {
+    ert();
+    pst();
+  }, []);
+
+  // const { isLoading } = useContractRead({
+  //   address: MARKETPLACE_ADDRESS,
+  //   abi: MarketPlaceABI,
+  //   functionName: "getItemInfo",
+  //   args: [id],
+  //   onError(data: any) {
+  //     console.log(data);
+  //   },
+  //   onSuccess(data: any) {
+  //     setListing(data);
+  //     setLoading(false);
+  //     setPrice(Number(formatUnits(data.price, 18)));
+  //     settotal(amount * Number(formatUnits(data.price, 18)));
+  //   },
+  // });
+
+  // const { data: allowanceData, isLoading: loading1 } = useContractRead({
+  //   address: WASTEWISE_TOKEN_ADDRESS,
+  //   abi: WASTEWISE_TOKEN_ABI,
+  //   functionName: "allowance",
+  //   args: [address, MARKETPLACE_ADDRESS],
+  //   onError(data: any) {
+  //     console.log(data);
+  //   },
+  //   onSuccess(data: any) {
+  //     setAllowance(data);
+  //   },
+  // });
+
+  // useContractEvent({
+  //   address: WASTEWISE_TOKEN_ADDRESS,
+  //   abi: WASTEWISE_TOKEN_ABI,
+  //   eventName: "Approval",
+  //   listener(log: any) {
+  //     setallowanceListener(log);
+  //   },
+  // });
 
   const handleDisable = () => {
     let dateNow = Math.floor(Date.now() / 1000);
-    if (listing?.deadline < dateNow) {
+    if (listing && listing[4] < dateNow) {
       return true;
     } else {
       return false;
     }
   };
 
-  const { config: buyListingConfig } = usePrepareContractWrite({
-    address: MARKETPLACE_ADDRESS,
-    abi: MarketPlaceABI,
-    functionName: "buyListing",
-    args: [listing?.itemId, amount],
-    onError(data: any) {
-      console.log(data);
-      // toast.error("!Failed to purchase item");
-      setLoading(false);
-    },
-  });
-  const {
-    data: payData,
-    write,
-    isError: isErrorP,
-  } = useContractWrite(buyListingConfig);
+  // const { config: buyListingConfig } = usePrepareContractWrite({
+  //   address: MARKETPLACE_ADDRESS,
+  //   abi: MarketPlaceABI,
+  //   functionName: "buyListing",
+  //   args: [listing?.itemId, amount],
+  //   onError(data: any) {
+  //     console.log(data);
+  //     // toast.error("!Failed to purchase item");
+  //     setLoading(false);
+  //   },
+  // });
+  // const {
+  //   data: payData,
+  //   write,
+  //   isError: isErrorP,
+  // } = useContractWrite(buyListingConfig);
 
-  const { config: approveListing } = usePrepareContractWrite({
-    address: WASTEWISE_TOKEN_ADDRESS,
-    abi: WASTEWISE_TOKEN_ABI,
-    functionName: "approve",
-    args: [MARKETPLACE_ADDRESS, parseEther(`${total}`)],
-    onError(data: any) {
-      console.log(data);
-      toast.error("Approval failed");
-      setLoadingA(false);
-    },
-  });
+  // const { config: approveListing } = usePrepareContractWrite({
+  //   address: WASTEWISE_TOKEN_ADDRESS,
+  //   abi: WASTEWISE_TOKEN_ABI,
+  //   functionName: "approve",
+  //   args: [MARKETPLACE_ADDRESS, parseEther(`${total}`)],
+  //   onError(data: any) {
+  //     console.log(data);
+  //     toast.error("Approval failed");
+  //     setLoadingA(false);
+  //   },
+  // });
 
-  const {
-    data: approveData,
-    write: write2,
-    isError: isErrorA,
-  } = useContractWrite(approveListing);
+  // const {
+  //   data: approveData,
+  //   write: write2,
+  //   isError: isErrorA,
+  // } = useContractWrite(approveListing);
 
-  useWaitForTransaction({
-    hash: approveData?.hash,
-    onSettled(data, error) {
-      if (data?.blockHash) {
-        toast.success("Approval successful");
-        console.log("he don approve");
-        setLoadingA(false);
-        // navigate()
-        // write?.();
-      }
-    },
-  });
-  useWaitForTransaction({
-    hash: payData?.hash,
-    onSettled(data, error) {
-      if (data?.blockHash) {
-        console.log("he don pay");
-        toast.success("Item successfully purchased");
-        setLoading(false);
-        navigate("/dashboard/myEvents");
-      }
-    },
-  });
+  // useWaitForTransaction({
+  //   hash: approveData?.hash,
+  //   onSettled(data, error) {
+  //     if (data?.blockHash) {
+  //       toast.success("Approval successful");
+  //       console.log("he don approve");
+  //       setLoadingA(false);
+  //       // navigate()
+  //       // write?.();
+  //     }
+  //   },
+  // });
+  // useWaitForTransaction({
+  //   hash: payData?.hash,
+  //   onSettled(data, error) {
+  //     if (data?.blockHash) {
+  //       console.log("he don pay");
+  //       toast.success("Item successfully purchased");
+  //       setLoading(false);
+  //       navigate("/dashboard/purchases");
+  //     }
+  //   },
+  // });
 
   const handleApprove = (e: any) => {
     e.preventDefault();
     // const value = allowanceAmountRef.current?.value;
     // setAllowanceAmount(value);
     setLoadingA(true);
-    write2?.();
+    wst?.();
   };
   const handlePay = async () => {
     setLoading(true);
     console.log(true);
     // write2?.();
-    write?.();
+    zst?.();
   };
 
-  useEffect(() => {
-    if (isLoading) {
-      setLoading(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     setLoading(true);
+  //   }
+  // }, []);
 
-  useEffect(() => {
-    if (isErrorA) {
-      setLoadingA(false);
-    }
-  }, [isErrorA]);
-  useEffect(() => {
-    if (isErrorP) {
-      setLoading(false);
-    }
-  }, [isErrorP]);
+  // useEffect(() => {
+  //   if (isErrorA) {
+  //     setLoadingA(false);
+  //   }
+  // }, [isErrorA]);
+  // useEffect(() => {
+  //   if (isErrorP) {
+  //     setLoading(false);
+  //   }
+  // }, [isErrorP]);
   useEffect(() => {
     settotal(amount * price);
     window.localStorage.setItem("itemAmount", `${amount}`);
@@ -197,15 +278,21 @@ const SingleEvent = () => {
       <div className="flex justify-between items-start gap-x-8">
         <div className="card mb-5 w-[95%] max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto bg-base-100 shadow-xl lg:shadow-2xl pt-4">
           <figure>
-            <img src={listing?.image} alt="Shoes" />
+            <img src={listing ? listing[2] : ""} alt="Shoes" />
           </figure>
           <div className="card-body">
-            <h2 className="card-title">
-              {listing?.name}
-              <div className="badge badge-secondary">NEW</div>
+            <h2 className="card-title capitalize lg:text-3xl">
+              {listing ? listing[0] : ""}
+              <div className="badge badge-success text-white">NEW</div>
             </h2>
-            <p>{listing?.description}</p>
-            <p>Ends: {formatDate(Number(listing?.deadline))}</p>
+            <p>
+              <span className="font-bold text-lg">Description: </span>
+              {listing ? listing[1] : ""}
+            </p>
+            <p>
+              <span className="font-bold text-red-500">Ends: </span>{" "}
+              {formatDate(Number(listing ? listing[4] : 0))}
+            </p>
             <div className="card-actions justify-between items-center mt-5">
               <div className="grid grid-cols-3 gap-x-5 items-center">
                 <button className="" onClick={decrease}>
@@ -217,7 +304,7 @@ const SingleEvent = () => {
                 </button>
               </div>
               <h3 className="font-bold text-lg">
-                {listing ? formatUnits(listing?.price, 18) : ""}{" "}
+                {listing ? formatUnits(listing ? listing[3] : 0, 18) : ""}{" "}
                 <span>RWISE</span>
               </h3>
             </div>
@@ -236,9 +323,10 @@ const SingleEvent = () => {
                 <tbody>
                   {/* row 1 */}
                   <tr>
-                    <td>{listing ? Number(listing.itemId) : "-"}</td>
+                    <td>{listing ? Number(listing ? listing[6] : 0) : "-"}</td>
                     <td>
-                      {listing ? formatUnits(listing?.price, 18) : 0} RWISE
+                      {listing ? formatUnits(listing ? listing[3] : 0, 18) : 0}{" "}
+                      RWISE
                     </td>
                     <td>{amount}</td>
                     <td>{total} RWISE</td>
@@ -247,7 +335,7 @@ const SingleEvent = () => {
               </table>
             </div>
             <button
-              className="btn bg-[#026937] hover:bg-[#026937]"
+              className="btn bg-[#026937] hover:bg-[#026937] text-white"
               onClick={
                 allowance < parseEther(`${total}`)
                   ? () =>
@@ -290,7 +378,7 @@ const SingleEvent = () => {
                 </svg>
               </div>
               <div className="stat-value text-success-content dark:text-success">
-                645
+                {/* {listing && Number(listing ? listing[7] : 0)} */}645
               </div>
               <div className="stat-title">Items sold</div>
             </div>

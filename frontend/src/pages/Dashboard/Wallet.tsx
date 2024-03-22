@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import useNotificationCount from "../../hooks/useNotificationCount";
 import { formatEther, formatUnits } from "viem";
 import { FaRecycle } from "react-icons/fa6";
+import { ethers } from "ethers";
 
 const Wallet = () => {
   const { address } = useAccount();
@@ -29,6 +30,22 @@ const Wallet = () => {
     setNotifCount,
   } = useWasteWiseContext();
   const notificationCount = useNotificationCount();
+
+  const providers = new ethers.JsonRpcProvider(
+    `https://testnet.bitfinity.network`
+  );
+
+  const contract = new ethers.Contract(
+    WASTEWISE_TOKEN_ADDRESS,
+    WASTEWISE_TOKEN_ABI,
+    providers
+  );
+
+  const ert = async () => {
+    const balance = await contract.balanceOf(address);
+
+    setTokenBalance(Number(balance));
+  };
 
   const { data } = useContractRead({
     address: WASTEWISE_ADDRESS,
@@ -47,19 +64,26 @@ const Wallet = () => {
     account: address,
   });
 
-  const { data: tokenData, isSuccess: gotTokenBalance } = useContractRead({
+  const {
+    data: tokenData,
+    isSuccess: gotTokenBalance,
+    error: tokenError,
+  } = useContractRead({
     address: WASTEWISE_TOKEN_ADDRESS,
     abi: WASTEWISE_TOKEN_ABI,
     functionName: "balanceOf",
     args: [address],
+    onError(err) {
+      console.log("Error occurred when fetching token", err);
+    },
   });
-  console.log(tokenData);
+  console.log("tokenData", tokenData);
 
-  useEffect(() => {
-    if (gotTokenBalance) {
-      setTokenBalance(Number(tokenData));
-    }
-  }, [gotTokenBalance]);
+  // useEffect(() => {
+  //   if (gotTokenBalance) {
+  //     setTokenBalance(Number(tokenData));
+  //   }
+  // }, [gotTokenBalance]);
   // Plastic Deposit event
   useContractEvent({
     address: WASTEWISE_ADDRESS,
@@ -308,6 +332,10 @@ const Wallet = () => {
     });
   }, [transactions]);
 
+  useEffect(() => {
+    ert();
+  }, []);
+
   const roleEIA = (role: number) => {
     if (role === 2) {
       return (
@@ -461,7 +489,7 @@ const Wallet = () => {
                 <div className="stat-title text-xs lg:text-sm">Token</div>
                 <div className="stat-value font-bold text-neutral/90 text-2xl lg:text-4xl dark:text-base-content">
                   {/* {tokenData?.data ? Number(tokenData?.data) : 0} */}
-                  {gotTokenBalance ? formatUnits(tokenBalance as any, 18) : 0}
+                  {tokenBalance ? formatUnits(tokenBalance as any, 18) : 0}
                 </div>
                 <div className="stat-desc">
                   {(recycledData?.data as any) &&

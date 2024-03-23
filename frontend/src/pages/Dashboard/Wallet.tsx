@@ -15,8 +15,10 @@ import useNotificationCount from "../../hooks/useNotificationCount";
 import { formatEther, formatUnits } from "viem";
 import { FaRecycle } from "react-icons/fa6";
 import { ethers } from "ethers";
+import { useNavigate } from "react-router-dom";
 
 const Wallet = () => {
+  const navigate = useNavigate();
   const { address } = useAccount();
   const [chartData, setChartData] = useState([]);
   const [tokenBalance, setTokenBalance] = useState(0);
@@ -42,7 +44,15 @@ const Wallet = () => {
   );
 
   const ert = async () => {
-    const balance = await contract.balanceOf(address);
+    const wproviders = new ethers.providers.Web3Provider(window.ethereum);
+    let signer = wproviders.getSigner();
+    const contract1 = new ethers.Contract(
+      WASTEWISE_TOKEN_ADDRESS,
+      WASTEWISE_TOKEN_ABI,
+      signer
+    );
+    const balance = await contract1.balanceOf(address);
+    console.log(Number(balance));
 
     setTokenBalance(Number(balance));
   };
@@ -335,6 +345,12 @@ const Wallet = () => {
   useEffect(() => {
     ert();
   }, []);
+
+  const timeOutID = setTimeout(() => {
+    window.location.reload();
+  }, 2000);
+
+  clearTimeout(timeOutID);
 
   const roleEIA = (role: number) => {
     if (role === 2) {

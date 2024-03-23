@@ -2,8 +2,8 @@ require("dotenv").config();
 const hre = require("hardhat");
 
 async function main() {
-  const rwasteWiseAddress = "0x34f66affd7c24faa4785e922d34ed992ee5c7802";
-  const wasteWiseAddress = "0x1D40Ccf93331c4770f842da4E3e83FE8Ebce5c51";
+  const rwasteWiseAddress = "0xbf95B535B55fbBB3ef4178553A8171B7491798E5";
+  const wasteWiseAddress = "0xE7D4382f257639128324bED532B786D93e89b8e8";
 
   const provider = hre.ethers.provider;
   const deployerWallet = new hre.ethers.Wallet(

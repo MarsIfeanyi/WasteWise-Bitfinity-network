@@ -1,12 +1,81 @@
-## Contract Addresses deployed on Bitfinity network (testnet)
+# WasteWise Protocol 
+
+WasteWise protocol is a green chain, sustainable environment-first (Waste to Wealth) blockchain-powered platform designed to incentivize recycling and responsible waste(plastic) disposal, contributing significantly to the creation of cleaner, more sustainable environments for all.
+
+The circular economy is at the core of our approach—reusing, and recycling plastic bottles to reduce waste in landfills.
+
+The [WasteWise Protocol](https://wastewise-bitfinity.vercel.app/) is deployed and running on the [Bitfinity-network](https://docs.bitfinity.network/). 
+
+## Contract Addresses deployed and Verified on Bitfinity network (testnet)
 
 - wasteWise Receipt Token Address:
 
-  - 0x34F66AfFD7c24faa4785E922d34ED992Ee5C7802
+  - 0xbf95B535B55fbBB3ef4178553A8171B7491798E5
+    - https://explorer.bitfinity.network/address/0xbf95B535B55fbBB3ef4178553A8171B7491798E5#code
 
 - WasteWise Address:
 
-  - 0x7350BF58C593be884278B63361Fe2DF00AB45918
+  - 0xE7D4382f257639128324bED532B786D93e89b8e8
+    - https://explorer.bitfinity.network/address/0xE7D4382f257639128324bED532B786D93e89b8e8#code
 
 - WasteWise MarketPlace:
-  - 0x650cc1B3C53f1Ff698b76fc47819CaCC512e0762
+  - 0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7
+    - https://explorer.bitfinity.network/address/0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7#code
+
+## Live Dapp URL:
+https://wastewise-bitfinity.vercel.app/
+
+
+## Demo Videos
+
+Project Overview:
+ - https://youtu.be/_x5AMg4C21I?si=lmz4ZeTH65tQAmRo
+
+Practical work through / Technical Demo  
+
+## Presentation Slide
+https://docs.google.com/presentation/d/1oerp7OhjaqB3_W51xEAsEXRwnI6spJzmjWMsft4wZyU/edit?usp=sharing
+
+
+## UI Flows and Screens
+
+  - Home
+![01](./images/01.png)
+
+
+ - Admin Wallet
+![05](./images/05.png)
+
+  - Verifier Wallet
+![04](./images/04.png)
+
+  - Recycler (User) Wallet
+![02](./images/02.png)
+
+  - LeaderBoard
+![03](./images/03.png)
+
+  - Admin Dashbaord
+![06](./images/06.png)
+
+  - Wastewise MarketPlace
+![07](./images/07.png)
+
+
+## Further Improvements
+This is the first version of our Project and the following features will be coming implemented in the second version.
+- IoT Counter: 
+  - The Verifer will be replaced with IoT Counter.
+    - An IoT device for real time counting of the plastics bottles and sending the counts on chain to be used by the price Feeds for accurate conversion to local and cryptocurrencies.
+
+- Account Abstraction: 
+  - We are going to implement Account abstraction for easy onboarding of user and for gaseless transactions.
+
+- Educational Forum: 
+  - The educational forum will be implemented so as to raise awareness about waste management, recycling best practice for environmental sustainability. Educational videos and contents will be made available here and users will be rewarded for finishing any of the module.
+
+- Referral System: 
+  - The referral system will be implemented so as to allow users to invite their friends and also incentivize them for active referral
+
+
+

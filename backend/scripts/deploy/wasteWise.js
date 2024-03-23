@@ -2,7 +2,7 @@ require("dotenv").config();
 const hre = require("hardhat");
 
 async function main() {
-  const rwasteWiseAddress = "0x34F66AfFD7c24faa4785E922d34ED992Ee5C7802";
+  const rwasteWiseAddress = "0xbf95B535B55fbBB3ef4178553A8171B7491798E5";
   const Admins = [
     "0x72C90da5748739D640DEbBf19280ca51856A0177",
     "0x2Af6B6fB6a6a6eb93Dc32151A5B7F403Be14fD88",

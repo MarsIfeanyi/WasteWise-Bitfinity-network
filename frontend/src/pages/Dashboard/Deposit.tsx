@@ -13,49 +13,82 @@ import { WASTEWISE_ADDRESS, WasteWiseABI } from "../../../constants";
 import { useWasteWiseContext } from "../../context";
 import useNotificationCount from "../../hooks/useNotificationCount";
 import { useNavigate } from "react-router-dom";
+import { ethers } from "ethers";
 
 const Recycle = () => {
   const { address } = useAccount();
   const [numPlastic, setNumPlastic] = useState<number>();
   const [userId, setUserId] = useState<number>();
+  const [loading, setLoading] = useState(false);
+  const [deposit, setDeposit] = useState<any>();
   const notificationCount = useNotificationCount();
   const { currentUser, wastewiseStore, setNotifCount } = useWasteWiseContext();
   const navigate = useNavigate();
 
-  const { config: depositPlasticConfig } = usePrepareContractWrite({
-    address: WASTEWISE_ADDRESS,
-    abi: WasteWiseABI,
-    functionName: "depositPlastic",
-    args: [numPlastic, userId],
+  const wproviders = new ethers.providers.Web3Provider(window.ethereum);
+
+  const depositPlasticWrite = async () => {
+    setLoading(true);
+    toast.info("Sending out RWISE... Might take few minutes");
+    try {
+      let signer = wproviders.getSigner();
+      const contract3 = new ethers.Contract(
+        WASTEWISE_ADDRESS,
+        WasteWiseABI,
+        signer
+      );
+      const depositTx = await contract3.depositPlastic(numPlastic, userId);
+      setDeposit(depositTx);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  useWaitForTransaction({
+    hash: deposit?.hash,
+    onSettled(data, error) {
+      if (data?.blockHash) {
+        toast.success("RWISE successfully sent");
+        setLoading(false);
+      }
+    },
   });
 
-  const {
-    data: depositPlasticData,
-    isError: isDepositPlasticError,
-    error,
-    write: depositPlasticWrite,
-    isLoading,
-  } = useContractWrite(depositPlasticConfig);
+  // const { config: depositPlasticConfig } = usePrepareContractWrite({
+  //   address: WASTEWISE_ADDRESS,
+  //   abi: WasteWiseABI,
+  //   functionName: "depositPlastic",
+  //   args: [numPlastic, userId],
+  // });
 
-  const { isLoading: isDepositingPlastic, isSuccess: isPlasticDeposited } =
-    useWaitForTransaction({
-      hash: depositPlasticData?.hash,
-      onSettled(data, error) {
-        if (data?.blockHash) {
-          setNumPlastic(0);
-          setUserId(0);
-        }
-      },
-    });
+  // const {
+  //   data: depositPlasticData,
+  //   isError: isDepositPlasticError,
+  //   error,
+  //   write: depositPlasticWrite,
+  //   isLoading,
+  // } = useContractWrite(depositPlasticConfig);
 
-  useEffect(() => {
-    if (isDepositingPlastic) {
-      toast.loading("Depositing the Plastic. Kindly wait", {
-        // description: "My description",
-        duration: 10000,
-      });
-    }
-  }, [isDepositingPlastic]);
+  // const { isLoading: isDepositingPlastic, isSuccess: isPlasticDeposited } =
+  //   useWaitForTransaction({
+  //     hash: depositPlasticData?.hash,
+  //     onSettled(data, error) {
+  //       if (data?.blockHash) {
+  //         setNumPlastic(0);
+  //         setUserId(0);
+  //       }
+  //     },
+  //   });
+
+  // useEffect(() => {
+  //   if (isDepositingPlastic) {
+  //     toast.loading("Depositing the Plastic. Kindly wait", {
+  //       // description: "My description",
+  //       duration: 10000,
+  //     });
+  //   }
+  // }, [isDepositingPlastic]);
 
   const handleDepositPlastic = async (e: any) => {
     e.preventDefault();
@@ -63,23 +96,23 @@ const Recycle = () => {
     depositPlasticWrite?.();
   };
 
-  useEffect(() => {
-    if (isLoading) {
-      toast.loading("Approving Recycled item(s)", {
-        // description: "My description",
-        duration: 5000,
-      });
-    }
-  }, [isLoading]);
+  // useEffect(() => {
+  //   if (isLoading) {
+  //     toast.loading("Approving Recycled item(s)", {
+  //       // description: "My description",
+  //       duration: 5000,
+  //     });
+  //   }
+  // }, [isLoading]);
 
-  useEffect(() => {
-    if (isPlasticDeposited) {
-      toast.success("Successfully Approved Recycled item(s)", {
-        // description: "My description",
-        duration: 5000,
-      });
-    }
-  }, [isPlasticDeposited]);
+  // useEffect(() => {
+  //   if (isPlasticDeposited) {
+  //     toast.success("Successfully Approved Recycled item(s)", {
+  //       // description: "My description",
+  //       duration: 5000,
+  //     });
+  //   }
+  // }, [isPlasticDeposited]);
 
   const sdgModal = useRef<HTMLDialogElement>(null);
   return (
@@ -213,9 +246,7 @@ const Recycle = () => {
             </label>
           </div>
           <Button name="Recycle" size="block" customStyle="w-full">
-            {(isLoading || isDepositingPlastic) && (
-              <span className="loading"></span>
-            )}
+            {loading && <span className="loading"></span>}
           </Button>
         </form>
       </div>

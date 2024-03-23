@@ -31,9 +31,10 @@ https://wastewise-bitfinity.vercel.app/
 ## Demo Videos
 
 Project Overview:
- - https://youtu.be/_x5AMg4C21I?si=lmz4ZeTH65tQAmRo
+ - https://youtu.be/_x5AMg4C21I
 
-Practical work through / Technical Demo  
+Practical work through / Technical Demo 
+  - https://youtu.be/oBCwbAGIKcY
 
 ## Presentation Slide
 https://docs.google.com/presentation/d/1oerp7OhjaqB3_W51xEAsEXRwnI6spJzmjWMsft4wZyU/edit?usp=sharing

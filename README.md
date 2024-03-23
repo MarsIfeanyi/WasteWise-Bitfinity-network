@@ -1,12 +1,17 @@
-## Contract Addresses deployed on Bitfinity network (testnet)
+# WasteWise Protocol
+
+## Contract Addresses deployed and Verified on Bitfinity network (testnet)
 
 - wasteWise Receipt Token Address:
 
-  - 0x34F66AfFD7c24faa4785E922d34ED992Ee5C7802
+  - 0xbf95B535B55fbBB3ef4178553A8171B7491798E5
+    - https://explorer.bitfinity.network/address/0xbf95B535B55fbBB3ef4178553A8171B7491798E5#code
 
 - WasteWise Address:
 
-  - 0x7350BF58C593be884278B63361Fe2DF00AB45918
+  - 0xE7D4382f257639128324bED532B786D93e89b8e8
+    - https://explorer.bitfinity.network/address/0xE7D4382f257639128324bED532B786D93e89b8e8#code
 
 - WasteWise MarketPlace:
-  - 0x650cc1B3C53f1Ff698b76fc47819CaCC512e0762
+  - 0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7
+    - https://explorer.bitfinity.network/address/0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7#code

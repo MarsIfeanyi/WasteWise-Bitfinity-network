@@ -12,17 +12,17 @@ The WasteWise Protocol is a comprehensive blockchain-based solution comprising t
 
 - wasteWise Receipt Token Address:
 
-  - 0xbf95B535B55fbBB3ef4178553A8171B7491798E5
-    - https://explorer.bitfinity.network/address/0xbf95B535B55fbBB3ef4178553A8171B7491798E5#code
+  - 0x2d4dC4aDA01Bb17B1c705dd5a96E4a4CE9C9782C
+    - https://explorer.bitfinity.network/address/0x2d4dC4aDA01Bb17B1c705dd5a96E4a4CE9C9782C#code
 
 - WasteWise Address:
 
-  - 0xE7D4382f257639128324bED532B786D93e89b8e8
-    - https://explorer.bitfinity.network/address/0xE7D4382f257639128324bED532B786D93e89b8e8#code
+  - 0x989937083393431D653e8f2C0DF857FAb06bEAD0
+    - https://explorer.bitfinity.network/address/0x989937083393431D653e8f2C0DF857FAb06bEAD0#code
 
 - WasteWise MarketPlace:
-  - 0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7
-    - https://explorer.bitfinity.network/address/0x3C0f199ffF1f1ea2cC4441F6cc522fa93A5279B7#code
+  - 0x6cf0e9bEcd5dC906f0Ac3e55cCAba98ce6590241
+    - https://explorer.bitfinity.network/address/0x6cf0e9bEcd5dC906f0Ac3e55cCAba98ce6590241#code
 
 ## Live Dapp URL:
 https://wastewise-bitfinity.vercel.app/

@@ -52,9 +52,9 @@ const Wallet = () => {
       signer
     );
     const balance = await contract1.balanceOf(address);
-    console.log(Number(balance));
+    console.log(balance);
 
-    setTokenBalance(Number(balance));
+    setTokenBalance(balance);
   };
 
   const { data } = useContractRead({
@@ -505,7 +505,7 @@ const Wallet = () => {
                 <div className="stat-title text-xs lg:text-sm">Token</div>
                 <div className="stat-value font-bold text-neutral/90 text-2xl lg:text-4xl dark:text-base-content">
                   {/* {tokenData?.data ? Number(tokenData?.data) : 0} */}
-                  {tokenBalance ? formatUnits(tokenBalance as any, 18) : 0}
+                  {tokenBalance ? formatEther(tokenBalance as bigint) : 0}
                 </div>
                 <div className="stat-desc">
                   {(recycledData?.data as any) &&

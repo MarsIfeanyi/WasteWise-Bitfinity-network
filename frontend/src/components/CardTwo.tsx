@@ -2,14 +2,31 @@ import { useAccount, useContractRead } from "wagmi";
 import { MARKETPLACE_ADDRESS, MarketPlaceABI } from "../../constants";
 import { useWasteWiseContext } from "../context";
 import { MdEventNote } from "react-icons/md";
+import { useEffect, useState } from "react";
+import { ethers } from "ethers";
 
 const CardTwo = () => {
+  const [totalItems, setTotalItems] = useState<any>();
   // Items in the marketplace
-  const { data } = useContractRead({
-    address: MARKETPLACE_ADDRESS,
-    abi: MarketPlaceABI,
-    functionName: "listingId",
-  });
+
+  const wrt = async () => {
+    const providers = new ethers.providers.JsonRpcProvider(
+      `https://testnet.bitfinity.network`
+    );
+    const contract1 = new ethers.Contract(
+      MARKETPLACE_ADDRESS,
+      MarketPlaceABI,
+      providers
+    );
+    const total = await contract1.listingId();
+    console.log(Number(total));
+
+    setTotalItems(Number(total));
+  };
+
+  useEffect(()=>{
+    wrt()
+  },[])
 
   return (
     <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -20,7 +37,7 @@ const CardTwo = () => {
       <div className="mt-4 flex items-end justify-between">
         <div>
           <h4 className="text-title-md font-bold text-black dark:text-white">
-            {Number(data) || 0}
+            {totalItems?totalItems:0}
           </h4>
           <span className="text-sm font-medium">Total Marketplace Events</span>
         </div>

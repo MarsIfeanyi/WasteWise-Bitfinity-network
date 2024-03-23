@@ -52,9 +52,9 @@ const Wallet = () => {
       signer
     );
     const balance = await contract1.balanceOf(address);
-    console.log(Number(balance));
+    console.log(balance);
 
-    setTokenBalance(Number(balance));
+    setTokenBalance(balance);
   };
 
   const { data } = useContractRead({

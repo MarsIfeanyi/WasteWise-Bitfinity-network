@@ -35,9 +35,9 @@ const Home = (props: Props) => {
         <ChartTwo />
         {/* <ChartThree /> */}
         {/* <MapOne /> */}
-        <div className="col-span-12 w-full xl:col-span-12">
+        {/* <div className="col-span-12 w-full xl:col-span-12">
           <TableOne />
-        </div>
+        </div> */}
         {/* <ChatCard /> */}
       </div>
     </>

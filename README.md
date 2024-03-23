@@ -6,6 +6,8 @@ The circular economy is at the core of our approach—reusing, and recycling pla
 
 The [WasteWise Protocol](https://wastewise-bitfinity.vercel.app/) is deployed and running on the [Bitfinity-network](https://docs.bitfinity.network/). 
 
+The WasteWise Protocol is a comprehensive blockchain-based solution comprising three core contracts: `WasteWise`, `RwasteWise`, and `MarketPlace`. This integrated system is designed to promote environmental sustainability by rewarding users for recycling efforts through the issuance of receipt tokens (RWISE) and enabling the trade of items in a marketplace.
+
 ## Contract Addresses deployed and Verified on Bitfinity network (testnet)
 
 - wasteWise Receipt Token Address:

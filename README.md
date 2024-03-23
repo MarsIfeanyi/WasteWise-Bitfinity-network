@@ -34,8 +34,6 @@ Project Overview:
 
 - https://youtu.be/_x5AMg4C21I
 
-Practical work through / Technical Demo
-
 
 Practical work through / Technical Demo 
   - https://youtu.be/oBCwbAGIKcY

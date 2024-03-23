@@ -226,10 +226,10 @@ const Landing = (props: Props) => {
         {/* <!-- End Testimonials --> */}
       </section>
 
-      <section className="hero min-h-screen bg-base-100">
-        {/* <!-- Testimonials --> */}
+      {/* <section className="hero min-h-screen bg-base-100">
+        <!-- Timeline -->
         <div className="relative max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-          {/* <!-- Blockquote --> */}
+          <!-- Blockquote -->
           <blockquote className="text-center lg:mx-auto lg:w-3/5">
             <div className="mx-auto w-20 h-auto sm:w-28 text-gray-800 text-xl font-semibold dark:text-gray-200">
               Our Roadmap
@@ -403,10 +403,10 @@ const Landing = (props: Props) => {
 
             <footer className="mt-6"></footer>
           </blockquote>
-          {/* <!-- End Blockquote --> */}
+          <!-- End Blockquote -->
         </div>
-        {/* <!-- End Testimonials --> */}
-      </section>
+        <!-- End Timeline -->
+      </section> */}
 
       {/* <section>
         Our mission is to partner with campuses to create awareness of the SD
@@ -554,7 +554,7 @@ nn
             {/* <!-- End Col --> */}
 
             <div className="mt-3">
-              <p className="text-gray-500">
+              {/* <p className="text-gray-500">
                 We're part of the{" "}
                 <a
                   className="font-semibold text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400"
@@ -563,7 +563,7 @@ nn
                   Web3bridge
                 </a>{" "}
                 family.
-              </p>
+              </p> */}
               <p className="text-gray-500">
                 © Wastewise. {new Date().getFullYear()}.
                 <br />

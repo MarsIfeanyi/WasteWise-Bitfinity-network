@@ -48,7 +48,7 @@ const Marketplace = (props: Props) => {
 
   useEffect(() => {
     ert();
-  }, []);
+  }, [listings]);
 
   // const { isLoading, isFetchedAfterMount } = useContractRead({
   //   address: MARKETPLACE_ADDRESS,

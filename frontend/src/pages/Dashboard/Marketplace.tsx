@@ -18,12 +18,14 @@ const Marketplace = (props: Props) => {
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const wproviders = new ethers.providers.Web3Provider(window.ethereum);
+  const providers = new ethers.providers.JsonRpcProvider(
+    `https://testnet.bitfinity.network`
+  );
 
   const contract = new ethers.Contract(
     MARKETPLACE_ADDRESS,
     MarketPlaceABI,
-    wproviders
+    providers
   );
 
   const ert = async () => {

@@ -1,13 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  useAccount,
-  useConnect,
-  useContractEvent,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
+import { useAccount, useWaitForTransaction } from "wagmi";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatEther, formatUnits, parseEther } from "viem";
 import { formatDate } from "../../utils";
@@ -32,11 +24,12 @@ const SingleEvent = () => {
   const [amount, setAmount] = useState<number>(1);
   const [total, settotal] = useState<number>(0);
   const [price, setPrice] = useState<number>(0);
-  const [allowance, setAllowance] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(0);
   const [allowanceAmount, setAllowanceAmount] = useState<number>(0);
   const allowanceAmountRef = useRef(0);
-  const [allowanceListener, setallowanceListener] = useState(null);
-  const [provider, setProvider] = useState("");
+  const [itemLoading, setItemLoading] = useState(false);
+  const [BuyListing, setBuyListingTx] = useState<any>();
+  const [approve, setApproveTx] = useState<any>();
 
   const navigate = useNavigate();
 
@@ -70,103 +63,64 @@ const SingleEvent = () => {
   );
 
   const ert = async () => {
-    const item = await contract1.getItemInfo(id);
-    console.log(item);
-    setListing(item);
-    setPrice(Number(formatUnits(item ? item[3] : 0, 18)));
-    settotal(amount * Number(formatUnits(item ? item[3] : 0, 18)));
+    setItemLoading(true);
+    try {
+      const item = await contract1.getItemInfo(id);
+      console.log(item);
+      setListing(item);
+      setPrice(Number(formatUnits(item ? item[3] : 0, 18)));
+      settotal(amount * Number(formatUnits(item ? item[3] : 0, 18)));
+      setItemLoading(false);
+    } catch (error) {
+      console.log(error);
+      setItemLoading(false);
+    }
   };
 
-  const pst = async () => {
-    const allowanceData = await contract2.allowance(
-      address,
-      MARKETPLACE_ADDRESS
-    );
-    setAllowance(allowanceData);
-    console.log(allowanceData);
-  };
-
-  const wst = async () => {
-    let signer = await wproviders.getSigner();
-    const contract3 = new ethers.Contract(
-      WASTEWISE_TOKEN_ADDRESS,
-      WASTEWISE_TOKEN_ABI,
-      signer
-    );
-    const allowanceData = await contract3.approve(
-      MARKETPLACE_ADDRESS,
-      parseEther(`${total}`)
-    );
-    setAllowance(allowanceData);
-  };
-
-  const yst = async () => {
-    let signer = wproviders.getSigner();
-    const contract3 = new ethers.Contract(
-      WASTEWISE_TOKEN_ADDRESS,
-      WASTEWISE_TOKEN_ABI,
-      signer
-    );
-    await contract3.transferFrom(
-      address,
-      MARKETPLACE_ADDRESS,
-      parseEther(`${total}`)
-    );
+  const brt = async () => {
+    try {
+      const balanceTx = await contract2.balanceOf(address);
+      setBalance(Number(balanceTx));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const zst = async () => {
-    let signer = wproviders.getSigner();
-    const contract4 = new ethers.Contract(
-      MARKETPLACE_ADDRESS,
-      MarketPlaceABI,
-      signer
-    );
-    console.log(listing[6], amount);
-    await contract4.buyListing(listing[6], amount);
+    setLoading(true);
+    toast.info("Payment process... Might take few minutes");
+    try {
+      let signer = wproviders.getSigner();
+      const contract4 = new ethers.Contract(
+        MARKETPLACE_ADDRESS,
+        MarketPlaceABI,
+        signer
+      );
+      console.log(listing[6], amount);
+      const buyListingTx = await contract4.buyListing(listing[6], amount);
+      setBuyListingTx(buyListingTx);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      toast.error("An error occured when paying for item");
+    }
   };
+
+  useWaitForTransaction({
+    hash: BuyListing?.hash,
+    onSettled(data, error) {
+      if (data?.blockHash) {
+        toast.success("Item successfully purchased");
+        setLoading(false);
+        navigate(`/dashboard/purchases`);
+      }
+    },
+  });
 
   useEffect(() => {
     ert();
-    pst();
+    brt();
   }, []);
-
-  // const { isLoading } = useContractRead({
-  //   address: MARKETPLACE_ADDRESS,
-  //   abi: MarketPlaceABI,
-  //   functionName: "getItemInfo",
-  //   args: [id],
-  //   onError(data: any) {
-  //     console.log(data);
-  //   },
-  //   onSuccess(data: any) {
-  //     setListing(data);
-  //     setLoading(false);
-  //     setPrice(Number(formatUnits(data.price, 18)));
-  //     settotal(amount * Number(formatUnits(data.price, 18)));
-  //   },
-  // });
-
-  // const { data: allowanceData, isLoading: loading1 } = useContractRead({
-  //   address: WASTEWISE_TOKEN_ADDRESS,
-  //   abi: WASTEWISE_TOKEN_ABI,
-  //   functionName: "allowance",
-  //   args: [address, MARKETPLACE_ADDRESS],
-  //   onError(data: any) {
-  //     console.log(data);
-  //   },
-  //   onSuccess(data: any) {
-  //     setAllowance(data);
-  //   },
-  // });
-
-  // useContractEvent({
-  //   address: WASTEWISE_TOKEN_ADDRESS,
-  //   abi: WASTEWISE_TOKEN_ABI,
-  //   eventName: "Approval",
-  //   listener(log: any) {
-  //     setallowanceListener(log);
-  //   },
-  // });
 
   const handleDisable = () => {
     let dateNow = Math.floor(Date.now() / 1000);
@@ -177,187 +131,111 @@ const SingleEvent = () => {
     }
   };
 
-  // const { config: buyListingConfig } = usePrepareContractWrite({
-  //   address: MARKETPLACE_ADDRESS,
-  //   abi: MarketPlaceABI,
-  //   functionName: "buyListing",
-  //   args: [listing?.itemId, amount],
-  //   onError(data: any) {
-  //     console.log(data);
-  //     // toast.error("!Failed to purchase item");
-  //     setLoading(false);
-  //   },
-  // });
-  // const {
-  //   data: payData,
-  //   write,
-  //   isError: isErrorP,
-  // } = useContractWrite(buyListingConfig);
-
-  // const { config: approveListing } = usePrepareContractWrite({
-  //   address: WASTEWISE_TOKEN_ADDRESS,
-  //   abi: WASTEWISE_TOKEN_ABI,
-  //   functionName: "approve",
-  //   args: [MARKETPLACE_ADDRESS, parseEther(`${total}`)],
-  //   onError(data: any) {
-  //     console.log(data);
-  //     toast.error("Approval failed");
-  //     setLoadingA(false);
-  //   },
-  // });
-
-  // const {
-  //   data: approveData,
-  //   write: write2,
-  //   isError: isErrorA,
-  // } = useContractWrite(approveListing);
-
-  // useWaitForTransaction({
-  //   hash: approveData?.hash,
-  //   onSettled(data, error) {
-  //     if (data?.blockHash) {
-  //       toast.success("Approval successful");
-  //       console.log("he don approve");
-  //       setLoadingA(false);
-  //       // navigate()
-  //       // write?.();
-  //     }
-  //   },
-  // });
-  // useWaitForTransaction({
-  //   hash: payData?.hash,
-  //   onSettled(data, error) {
-  //     if (data?.blockHash) {
-  //       console.log("he don pay");
-  //       toast.success("Item successfully purchased");
-  //       setLoading(false);
-  //       navigate("/dashboard/purchases");
-  //     }
-  //   },
-  // });
-
-  const handleApprove = (e: any) => {
-    e.preventDefault();
-    // const value = allowanceAmountRef.current?.value;
-    // setAllowanceAmount(value);
-    setLoadingA(true);
-    wst?.();
+  const handleBalance = () => {
+    if (balance < Number(parseEther(`${total}`))) {
+      toast.error("Insufficient RWISE balance");
+      return true;
+    } else {
+      return false;
+    }
   };
+
   const handlePay = async () => {
-    setLoading(true);
-    console.log(true);
-    // write2?.();
     zst?.();
   };
 
-  // useEffect(() => {
-  //   if (isLoading) {
-  //     setLoading(true);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   if (isErrorA) {
-  //     setLoadingA(false);
-  //   }
-  // }, [isErrorA]);
-  // useEffect(() => {
-  //   if (isErrorP) {
-  //     setLoading(false);
-  //   }
-  // }, [isErrorP]);
   useEffect(() => {
     settotal(amount * price);
     window.localStorage.setItem("itemAmount", `${amount}`);
   }, [amount]);
-  useEffect(() => {}, [allowanceAmount]);
-  useEffect(() => {}, [allowanceListener]);
-  console.log(allowance);
   return (
     <div className="mb-8">
       <div className="flex justify-between items-start gap-x-8">
-        <div className="card mb-5 w-[95%] max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto bg-base-100 shadow-xl lg:shadow-2xl pt-4">
-          <figure>
-            <img src={listing ? listing[2] : ""} alt="Shoes" />
-          </figure>
-          <div className="card-body">
-            <h2 className="card-title capitalize lg:text-3xl">
-              {listing ? listing[0] : ""}
-              <div className="badge badge-success text-white">NEW</div>
-            </h2>
-            <p>
-              <span className="font-bold text-lg">Description: </span>
-              {listing ? listing[1] : ""}
-            </p>
-            <p>
-              <span className="font-bold text-red-500">Ends: </span>{" "}
-              {formatDate(Number(listing ? listing[4] : 0))}
-            </p>
-            <div className="card-actions justify-between items-center mt-5">
-              <div className="grid grid-cols-3 gap-x-5 items-center">
-                <button className="" onClick={decrease}>
-                  <FaMinus />
-                </button>
-                <h2 className="text-center text-lg font-semibold">{amount}</h2>
-                <button className="" onClick={increase}>
-                  <FaPlus />
-                </button>
+        {itemLoading ? (
+          <span className="loading loading-spinner loading-lg"></span>
+        ) : (
+          <div className="card mb-5 w-[95%] max-w-sm sm:max-w-md md:max-w-xl lg:max-w-2xl mx-auto bg-base-100 shadow-xl lg:shadow-2xl pt-4">
+            <figure>
+              <img src={listing ? listing[2] : ""} alt="Shoes" />
+            </figure>
+            <div className="card-body">
+              <h2 className="card-title capitalize lg:text-3xl">
+                {listing ? listing[0] : ""}
+                <div className="badge badge-success text-white">NEW</div>
+              </h2>
+              <p>
+                <span className="font-bold text-lg">Description: </span>
+                {listing ? listing[1] : ""}
+              </p>
+              <p>
+                <span className="font-bold text-red-500">Ends: </span>{" "}
+                {formatDate(Number(listing ? listing[4] : 0))}
+              </p>
+              <div className="card-actions justify-between items-center mt-5">
+                <div className="grid grid-cols-3 gap-x-5 items-center">
+                  <button className="" onClick={decrease}>
+                    <FaMinus />
+                  </button>
+                  <h2 className="text-center text-lg font-semibold">
+                    {amount}
+                  </h2>
+                  <button className="" onClick={increase}>
+                    <FaPlus />
+                  </button>
+                </div>
+                <h3 className="font-bold text-lg">
+                  {listing ? formatUnits(listing ? listing[3] : 0, 18) : ""}{" "}
+                  <span>RWISE</span>
+                </h3>
               </div>
-              <h3 className="font-bold text-lg">
-                {listing ? formatUnits(listing ? listing[3] : 0, 18) : ""}{" "}
-                <span>RWISE</span>
-              </h3>
+              {/* <div className="divider"></div> */}
+              <div className="overflow-x-auto my-4">
+                <table className="table">
+                  {/* head */}
+                  <thead>
+                    <tr>
+                      <th>ListingId</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* row 1 */}
+                    <tr>
+                      <td>
+                        {listing ? Number(listing ? listing[6] : 0) : "-"}
+                      </td>
+                      <td>
+                        {listing
+                          ? formatUnits(listing ? listing[3] : 0, 18)
+                          : 0}{" "}
+                        RWISE
+                      </td>
+                      <td>{amount}</td>
+                      <td>{total} RWISE</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <button
+                className="btn bg-[#026937] hover:bg-[#026937] text-white"
+                onClick={handlePay}
+                disabled={handleDisable() || handleBalance()}
+              >
+                {loading ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : handleDisable() ? (
+                  "Expired"
+                ) : handleBalance() ? (
+                  "Insufficient Balance"
+                ) : (
+                  "Pay Now"
+                )}
+              </button>
             </div>
-            {/* <div className="divider"></div> */}
-            <div className="overflow-x-auto my-4">
-              <table className="table">
-                {/* head */}
-                <thead>
-                  <tr>
-                    <th>ListingId</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* row 1 */}
-                  <tr>
-                    <td>{listing ? Number(listing ? listing[6] : 0) : "-"}</td>
-                    <td>
-                      {listing ? formatUnits(listing ? listing[3] : 0, 18) : 0}{" "}
-                      RWISE
-                    </td>
-                    <td>{amount}</td>
-                    <td>{total} RWISE</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <button
-              className="btn bg-[#026937] hover:bg-[#026937] text-white"
-              onClick={
-                allowance < parseEther(`${total}`)
-                  ? () =>
-                      (
-                        document.getElementById(
-                          "my_modal_2"
-                        ) as HTMLDialogElement
-                      )?.showModal()
-                  : handlePay
-              }
-              disabled={handleDisable()}
-            >
-              {loading ? (
-                <span className="loading loading-spinner loading-sm"></span>
-              ) : handleDisable() ? (
-                "Expired"
-              ) : (
-                "Pay Now"
-              )}
-            </button>
           </div>
-        </div>
+        )}
 
         <div>
           <div className="mb-5 stats hidden lg:block stats-vertical w-full shadow-xl lg:shadow-2xl">
@@ -444,40 +322,6 @@ const SingleEvent = () => {
           </section>
         </div>
       </div>
-      <dialog id="my_modal_2" className="modal">
-        <div className="modal-box">
-          <form method="dialog">
-            {/* if there is a button in form, it will close the modal */}
-            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-              ✕
-            </button>
-          </form>
-          <h3 className="font-bold text-lg">Set Approval</h3>
-          <p className="py-4">
-            {/* Your approval should be more than{" "} */}
-            Clicking "Approve" will set an allowance of{" "}
-            <span className="font-bold">{total} RWISE</span>.
-          </p>
-          <form onSubmit={handleApprove}>
-            {/* <input
-              type="number"
-              placeholder="Enter Allowance"
-              className="input input-bordered w-full mb-4"
-              ref={allowanceAmountRef}
-            /> */}
-            <button
-              className="btn bg-[#026937] hover:bg-[#026937] w-full"
-              type="submit"
-            >
-              {loadingA ? (
-                <span className="loading loading-spinner loading-sm"></span>
-              ) : (
-                "Approve"
-              )}
-            </button>
-          </form>
-        </div>
-      </dialog>
     </div>
   );
 };

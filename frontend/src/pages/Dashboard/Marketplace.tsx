@@ -29,13 +29,20 @@ const Marketplace = (props: Props) => {
   );
 
   const ert = async () => {
-    let items = [];
-    const allActiveItems = await contract.getAllActiveItemInfo();
-    if (allActiveItems) {
-      for (let i = 0; i < allActiveItems.length; i++) {
-        items.push(allActiveItems[i]);
+    setLoading(true);
+    try {
+      let items = [];
+      const allActiveItems = await contract.getAllActiveItemInfo();
+      if (allActiveItems) {
+        for (let i = 0; i < allActiveItems.length; i++) {
+          items.push(allActiveItems[i]);
+        }
+        setListings(items);
       }
-      setListings(items);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
     }
   };
 
@@ -70,13 +77,13 @@ const Marketplace = (props: Props) => {
   });
   return (
     <div className="my-8">
-      {false && listings.length == 0 && (
+      {!loading && listings.length == 0 && (
         <p className="text-lg font-semibold text-center">
           No Items Available To Purchase
         </p>
       )}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-        {false ? (
+        {loading ? (
           <span className="loading loading-spinner loading-lg"></span>
         ) : (
           listings.map((item, index) => {

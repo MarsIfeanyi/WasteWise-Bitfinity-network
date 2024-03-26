@@ -9,6 +9,9 @@
     "wagmi": "wagmi generate"
   },
   "dependencies": {
+    "@dfinity/agent": "^0.15.7",
+    "@dfinity/candid": "^0.15.7",
+    "@dfinity/principal": "^0.15.7",
     "@headlessui/react": "^1.7.17",
     "@wagmi/cli": "^1.0.0",
     "apexcharts": "^3.41.0",
@@ -35,6 +38,7 @@
     "sort-by": "^0.0.2",
     "util": "^0.12.4",
     "viem": "~0.3.36",
+    "vite-plugin-environment": "^1.1.3",
     "wagmi": "^1.0.6"
   },
   "devDependencies": {

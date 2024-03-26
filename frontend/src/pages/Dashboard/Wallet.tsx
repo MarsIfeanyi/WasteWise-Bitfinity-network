@@ -44,17 +44,15 @@ const Wallet = () => {
   );
 
   const ert = async () => {
-    const wproviders = new ethers.providers.Web3Provider(window.ethereum);
-    let signer = wproviders.getSigner();
     const contract1 = new ethers.Contract(
       WASTEWISE_TOKEN_ADDRESS,
       WASTEWISE_TOKEN_ABI,
-      signer
+      providers
     );
     const balance = await contract1.balanceOf(address);
-    console.log(balance);
+    console.log(Number(balance));
 
-    setTokenBalance(balance);
+    setTokenBalance(Number(balance));
   };
 
   const { data } = useContractRead({
@@ -74,20 +72,20 @@ const Wallet = () => {
     account: address,
   });
 
-  const {
-    data: tokenData,
-    isSuccess: gotTokenBalance,
-    error: tokenError,
-  } = useContractRead({
-    address: WASTEWISE_TOKEN_ADDRESS,
-    abi: WASTEWISE_TOKEN_ABI,
-    functionName: "balanceOf",
-    args: [address],
-    onError(err) {
-      console.log("Error occurred when fetching token", err);
-    },
-  });
-  console.log("tokenData", tokenData);
+  // const {
+  //   data: tokenData,
+  //   isSuccess: gotTokenBalance,
+  //   error: tokenError,
+  // } = useContractRead({
+  //   address: WASTEWISE_TOKEN_ADDRESS,
+  //   abi: WASTEWISE_TOKEN_ABI,
+  //   functionName: "balanceOf",
+  //   args: [address],
+  //   onError(err) {
+  //     console.log("Error occurred when fetching token", err);
+  //   },
+  // });
+  // console.log("tokenData", tokenData);
 
   // useEffect(() => {
   //   if (gotTokenBalance) {

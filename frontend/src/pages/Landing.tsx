@@ -512,8 +512,7 @@ nn
                   Is Wastewise a web3 platform?
                 </h3>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Yes, Wastewise is a web3 platform. Wastewise is built on Base
-                  Blockchain. A layer2 blockchain solution that allows wastewise
+                  Yes, Wastewise is a web3 platform. Wastewise is built on ICP. A ICP blockchain solution that allows wastewise
                   to scale without sacrificing security
                 </p>
               </div>
